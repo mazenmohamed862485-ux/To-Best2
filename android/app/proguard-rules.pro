@@ -1,0 +1,7 @@
+-keep class com.tobest.app.** { *; }
+-keep class io.flutter.** { *; }
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+-keep class com.google.** { *; }
+-dontwarn com.google.**
