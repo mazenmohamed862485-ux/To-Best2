@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../providers/app_providers.dart';
+import '../../../models/workout_log_model.dart';
 import '../providers/progress_provider.dart';
 
 class ProgressScreen extends ConsumerWidget {

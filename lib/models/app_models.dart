@@ -470,13 +470,3 @@ class BanEntry {
     'bannedBy': bannedBy,
   };
 }
-
-// ── Evaluation Types ──────────────────────────────────
-enum EvalType { s1, s2, s3, rv, gd, st, ws, dn, beg }
-
-class EvalResult {
-  final EvalType type;
-  final String label;
-
-  const EvalResult({required this.type, required this.label});
-}

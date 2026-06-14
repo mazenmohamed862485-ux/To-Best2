@@ -9,6 +9,24 @@ import '../../../providers/app_providers.dart';
 import '../../../widgets/common/app_button.dart';
 import '../providers/session_provider.dart';
 
+// ── Warmup Item Data ──────────────────────────────────
+class _WarmupItem {
+  final String name;
+  final String reps;
+  final String note;
+  const _WarmupItem({required this.name, required this.reps, required this.note});
+}
+
+const List<_WarmupItem> kWarmupItems = [
+  _WarmupItem(name: 'المشي في المكان', reps: '5 دقائق', note: '5 min — warm up joints'),
+  _WarmupItem(name: 'دوران الذراعين', reps: '20 تكراراً', note: '20 reps — loosen shoulders'),
+  _WarmupItem(name: 'دوران مفصل الورك', reps: '15 تكراراً', note: '15 reps — hip mobility'),
+  _WarmupItem(name: 'القرفصاء البطيء', reps: '10 تكرارات', note: '10 reps — activate quads'),
+  _WarmupItem(name: 'تمديد الصدر', reps: '10 تكرارات', note: '10 reps — open chest'),
+];
+
+
+
 class SessionScreen extends ConsumerStatefulWidget {
   final String sessionName;
   const SessionScreen({super.key, required this.sessionName});
