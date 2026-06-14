@@ -46,9 +46,9 @@ jobs:
       - name: Download Cairo Fonts
         run: |
           mkdir -p assets/fonts
-          curl -fsSL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Regular.ttf" || echo "Warning: font download failed"
-          curl -fsSL -o assets/fonts/Cairo-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Bold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
-          curl -fsSL -o assets/fonts/Cairo-ExtraBold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-ExtraBold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
+          curl -fsSL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf"
+          cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
+          cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
           ls -la assets/fonts/
 
       - name: Install Flutter dependencies
