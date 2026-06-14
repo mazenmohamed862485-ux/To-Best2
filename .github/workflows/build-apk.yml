@@ -1,70 +1,75 @@
 name: Build APK
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+  on:
+    push:
+      branches: [ main ]
+    pull_request:
+      branches: [ main ]
+    workflow_dispatch:
 
-jobs:
-  build:
-    name: Build Flutter APK
-    runs-on: ubuntu-latest
+  jobs:
+    build:
+      name: Build Flutter APK
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+        - name: Setup Java 17
+          uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '17'
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.0'
-          channel: 'stable'
-          cache: true
+        - name: Setup Flutter
+          uses: subosito/flutter-action@v2
+          with:
+            flutter-version: '3.22.0'
+            channel: 'stable'
+            cache: true
 
-      - name: Flutter version info
-        run: flutter --version
+        - name: Flutter version info
+          run: flutter --version
 
-      - name: Download Cairo Fonts
-        run: |
-          mkdir -p assets/fonts
-          curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Regular.ttf" \
-            || curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf" \
-            || echo "Warning: Could not download Cairo-Regular.ttf"
-          curl -fL -o assets/fonts/Cairo-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Bold.ttf" \
-            || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
-          curl -fL -o assets/fonts/Cairo-ExtraBold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-ExtraBold.ttf" \
-            || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
-          ls -la assets/fonts/
+        - name: Create android/local.properties
+          run: |
+            echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+            echo "flutter.buildMode=release" >> android/local.properties
+            echo "flutter.versionCode=1" >> android/local.properties
+            echo "flutter.versionName=1.0" >> android/local.properties
+            cat android/local.properties
 
-      - name: Install Flutter dependencies
-        run: flutter pub get
+        - name: Download Cairo Fonts
+          run: |
+            mkdir -p assets/fonts
+            curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Regular.ttf" || curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf" || echo "Warning: Cairo-Regular not found"
+            curl -fL -o assets/fonts/Cairo-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Bold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
+            curl -fL -o assets/fonts/Cairo-ExtraBold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-ExtraBold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
+            ls -la assets/fonts/
 
-      - name: Generate localizations
-        run: flutter gen-l10n
+        - name: Install Flutter dependencies
+          run: flutter pub get
 
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos
-        continue-on-error: true
+        - name: Generate localizations
+          run: flutter gen-l10n
 
-      - name: Build APK (Release)
-        run: flutter build apk --release --no-shrink
+        - name: Analyze code
+          run: flutter analyze --no-fatal-infos
+          continue-on-error: true
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: to-best-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
+        - name: Build APK (Release)
+          run: flutter build apk --release --no-shrink
 
-      - name: Build info
-        run: |
-          echo "Build completed successfully!"
-          ls -lh build/app/outputs/flutter-apk/
+        - name: Upload APK artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: to-best-release-apk
+            path: build/app/outputs/flutter-apk/app-release.apk
+            retention-days: 30
+
+        - name: Build info
+          run: |
+            echo "Build completed successfully!"
+            ls -lh build/app/outputs/flutter-apk/
+  
