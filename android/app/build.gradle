@@ -64,7 +64,7 @@ plugins {
 
       buildTypes {
           release {
-              // Use release signing if keystore exists, otherwise use debug signing for CI
+              // Use release signing if keystore exists, otherwise fall back to debug signing for CI
               signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
               minifyEnabled true
               shrinkResources true
@@ -82,7 +82,6 @@ plugins {
   }
 
   dependencies {
-      implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
       implementation 'androidx.multidex:multidex:2.0.1'
   }
   
