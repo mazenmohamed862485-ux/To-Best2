@@ -1,4 +1,4 @@
-import '../../models/app_models.dart';
+import '../../../models/app_models.dart';
 
 class FoodDatabase {
   static const List<FoodItem> all = [
