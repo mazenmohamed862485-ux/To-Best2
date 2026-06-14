@@ -1,74 +1,98 @@
 name: Build APK
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+  on:
+    push:
+      branches: [ main ]
+    pull_request:
+      branches: [ main ]
+    workflow_dispatch:
 
-jobs:
-  build:
-    name: Build Flutter APK
-    runs-on: ubuntu-latest
+  env:
+    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  jobs:
+    build:
+      name: Build Flutter APK
+      runs-on: ubuntu-latest
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.0'
-          channel: 'stable'
-          cache: true
+        - name: Setup Java 17
+          uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '17'
 
-      - name: Flutter version info
-        run: flutter --version
+        - name: Setup Flutter
+          uses: subosito/flutter-action@v2
+          with:
+            flutter-version: '3.22.0'
+            channel: 'stable'
+            cache: true
 
-      - name: Create android/local.properties
-        run: |
-          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
-          echo "flutter.buildMode=release" >> android/local.properties
-          echo "flutter.versionCode=1" >> android/local.properties
-          echo "flutter.versionName=1.0" >> android/local.properties
-          cat android/local.properties
+        - name: Flutter version info
+          run: flutter --version
 
-      - name: Download Cairo Fonts
-        run: |
-          mkdir -p assets/fonts
-          curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Regular.ttf" || curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf" || echo "Warning: Font not found"
-          curl -fL -o assets/fonts/Cairo-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Bold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
-          curl -fL -o assets/fonts/Cairo-ExtraBold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-ExtraBold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
-          ls -la assets/fonts/
+        - name: Create android/local.properties
+          run: |
+            echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+            echo "flutter.buildMode=release" >> android/local.properties
+            echo "flutter.versionCode=1" >> android/local.properties
+            echo "flutter.versionName=1.0" >> android/local.properties
+            cat android/local.properties
 
-      - name: Install Flutter dependencies
-        run: flutter pub get
+        - name: Generate launcher icons
+          run: |
+            for cfg in "48:mdpi" "72:hdpi" "96:xhdpi" "144:xxhdpi" "192:xxxhdpi"; do
+              size="${cfg%%:*}"
+              density="${cfg##*:}"
+              mkdir -p android/app/src/main/res/mipmap-${density}
+              convert -size ${size}x${size} gradient:'#1565C0-#0D47A1' \
+                -gravity Center -fill white -pointsize $((size/3)) \
+                -font DejaVu-Sans-Bold -annotate 0 "TB" \
+                android/app/src/main/res/mipmap-${density}/ic_launcher.png
+              cp android/app/src/main/res/mipmap-${density}/ic_launcher.png \
+                 android/app/src/main/res/mipmap-${density}/ic_launcher_round.png
+            done
+            echo "Generated icons:"
+            ls -la android/app/src/main/res/mipmap-*/
 
-      - name: Generate localizations
-        run: flutter gen-l10n
+        - name: Download Cairo Fonts
+          run: |
+            mkdir -p assets/fonts
+            curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Regular.ttf" || \
+              curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf" || \
+              echo "Warning: Cairo-Regular font not found"
+            curl -fL -o assets/fonts/Cairo-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Bold.ttf" || \
+              cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
+            curl -fL -o assets/fonts/Cairo-ExtraBold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-ExtraBold.ttf" || \
+              cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
+            ls -la assets/fonts/
 
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos
-        continue-on-error: true
+        - name: Install Flutter dependencies
+          run: flutter pub get
 
-      - name: Build APK (Release)
-        run: flutter build apk --release --no-shrink
+        - name: Generate localizations
+          run: flutter gen-l10n
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: to-best-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
+        - name: Analyze code
+          run: flutter analyze --no-fatal-infos
+          continue-on-error: true
 
-      - name: Build info
-        run: |
-          echo "Build completed successfully!"
-          ls -lh build/app/outputs/flutter-apk/
+        - name: Build APK (Release)
+          run: flutter build apk --release
+
+        - name: Upload APK artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: to-best-release-apk
+            path: build/app/outputs/flutter-apk/app-release.apk
+            retention-days: 30
+
+        - name: Build info
+          run: |
+            echo "Build completed successfully!"
+            ls -lh build/app/outputs/flutter-apk/
+  
