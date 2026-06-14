@@ -35,21 +35,9 @@ name: Build APK
         - name: Download Cairo Fonts
           run: |
             mkdir -p assets/fonts
-            # Download Cairo variable font from Google Fonts GitHub
-            curl -fL -o assets/fonts/Cairo-Regular.ttf \
-              "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Regular.ttf" || \
-            curl -fL -o assets/fonts/Cairo-Regular.ttf \
-              "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf"
-
-            curl -fL -o assets/fonts/Cairo-Bold.ttf \
-              "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Bold.ttf" || \
-            cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
-
-            curl -fL -o assets/fonts/Cairo-ExtraBold.ttf \
-              "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-ExtraBold.ttf" || \
-            cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
-
-            echo "Font files:"
+            curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Regular.ttf" || curl -fL -o assets/fonts/Cairo-Regular.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf" || echo "Using fallback font"
+            curl -fL -o assets/fonts/Cairo-Bold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-Bold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-Bold.ttf
+            curl -fL -o assets/fonts/Cairo-ExtraBold.ttf "https://github.com/google/fonts/raw/main/ofl/cairo/static/Cairo-ExtraBold.ttf" || cp assets/fonts/Cairo-Regular.ttf assets/fonts/Cairo-ExtraBold.ttf
             ls -la assets/fonts/
 
         - name: Install Flutter dependencies
@@ -74,6 +62,6 @@ name: Build APK
 
         - name: Build info
           run: |
-            echo "✅ Build completed successfully!"
+            echo "Build completed successfully!"
             ls -lh build/app/outputs/flutter-apk/
   
