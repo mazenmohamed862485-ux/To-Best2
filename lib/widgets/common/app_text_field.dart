@@ -1,2 +1,4 @@
-// AppTextField is defined in lib/widgets/common/app_button.dart
-// This file is kept for import compatibility.
+// Re-exports AppTextField widget (originally defined in app_button.dart)
+  // ignore: unnecessary_export
+  export 'package:to_best/widgets/common/app_button.dart' show AppTextField;
+  

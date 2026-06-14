@@ -37,6 +37,14 @@ class AdminState {
       error: error,
     );
   }
+
+  UserModel? getUserById(String uid) {
+    try {
+      return users.firstWhere((u) => u.uid == uid);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 class AdminNotifier extends StateNotifier<AdminState> {
